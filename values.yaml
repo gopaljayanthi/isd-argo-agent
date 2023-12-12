@@ -1,0 +1,11 @@
+# Default values for isd-argo-agent.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+name: tcb1
+namespace: argocd
+controllerHostname: controller.isd.opsmx.net:9001
+opsmxIsdUrl: "https://argo.isd.opsmx.net"
+carinaReplicaCount: 1
+
+uiUrl: https://cd.tcb1.opsmx.org/

@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opsmx-agent-{{ .Values.name }}  
+  labels:
+    agent.opsmx.com/name: {{ .Values.name }}
+    agent.opsmx.com/role: agent
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: opsmx-agent-{{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: opsmx-agent-{{ .Values.name }}
+        agent.opsmx.com/name: {{ .Values.name }}
+        agent.opsmx.com/role: agent
+    spec:
+      serviceAccountName: opsmx-agent-{{ .Values.name }}
+      containers:
+      - name: opsmx-agent-{{ .Values.name }}
+        image: quay.io/opsmxpublic/agent-client:v4.2.3
+        volumeMounts:
+        - name: config
+          mountPath: /app/config/config.yaml
+          subPath: config.yaml
+          readOnly: true
+        - name: authtoken
+          mountPath: /app/secrets
+          readOnly: true
+        - name: service-config
+          mountPath: /app/config/services.yaml
+          subPath: services.yaml
+          readOnly: true
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "250m"
+        env:
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+      volumes:
+      - name: authtoken
+        secret:
+          secretName: opsmx-agent-{{ .Values.name }}-auth
+      - name: config
+        configMap:
+          name: opsmx-agent-{{ .Values.name }}
+          items:
+          - key: "configFile"
+            path: "config.yaml"
+      - name: service-config
+        configMap:
+          name: opsmx-services-{{ .Values.name }}

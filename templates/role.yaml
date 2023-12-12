@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: opsmx-role-{{ .Values.name }}
+  labels:
+    agent.opsmx.com/name: {{ .Values.name }}
+    agent.opsmx.com/role: agent
+rules:
+- apiGroups: [""]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["apps"]
+  resources: ["*"]
+  verbs: ["*"]
