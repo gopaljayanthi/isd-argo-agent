@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsmx-agent-{{ .Values.name }} 
+  labels:
+    agent.opsmx.com/name: {{ .Values.name }}
+    agent.opsmx.com/role: agent
+data:
+  configFile: |
+    controllerHostname: {{ .Values.controllerHostname }}
+    caCert64: <base64cacert>

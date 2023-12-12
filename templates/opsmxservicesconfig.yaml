@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsmx-services-{{ .Values.name }}
+  labels:
+    agent.opsmx.com/name: {{ .Values.name }}
+    agent.opsmx.com/role: agent
+data:
+  services.yaml: |
+    outgoingServices:
+      - name: {{ .Values.name }}
+        type: argocd
+        enabled: true
+        config:
+          url: http://argocd-server:80
+          insecure: true
+          credentials:
+            type: bearer
+            token: <token>
+        annotations:
+          description: argocd via agent
+          uiUrl: {{ .Values.uiUrl }}
+      - name: {{ .Values.name }}
+        type: carinainstance
+        enabled: true
+        config:
+          url: http://carina-instance:8090

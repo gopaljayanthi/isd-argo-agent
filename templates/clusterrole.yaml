@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: opsmx-agent-{{ .Values.name }}
+  labels:
+    agent.opsmx.com/name: {{ .Values.name }}
+    agent.opsmx.com/role: agent
+rules:
+- apiGroups: [""]
+  resources: ["namespaces", "configmaps", "events", "replicationcontrollers", "serviceaccounts", "pods/log"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods", "services", "secrets"]
+  verbs: ["create", "delete", "deletecollection", "get", "list", "patch", "update", "watch"]
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["list", "get"]
+- apiGroups: ["apps"]
+  resources: ["controllerrevisions", "statefulsets"]
+  verbs: ["list"]
+- apiGroups: ["extensions", "apps"]
+  resources: ["deployments", "deployments/scale", "replicasets", "ingresses"]
+  verbs: ["create", "delete", "deletecollection", "get", "list", "patch", "update", "watch"]
