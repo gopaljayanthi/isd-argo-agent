@@ -5,7 +5,7 @@ metadata:
   labels:
     agent.opsmx.com/name: {{ .Values.name }}
     agent.opsmx.com/role: agent
-data:
+stringData:
   services.yaml: |
     outgoingServices:
       - name: {{ .Values.name }}
