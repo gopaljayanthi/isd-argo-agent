@@ -56,5 +56,6 @@ spec:
           - key: "configFile"
             path: "config.yaml"
       - name: service-config
-        configMap:
-          name: opsmx-services-{{ .Values.name }}
+        secret:
+          defaultMode: 420
+          secretName: opsmx-services-{{ .Values.name }}
