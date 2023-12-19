@@ -9,3 +9,4 @@ opsmxIsdUrl: "https://argo.isd.opsmx.net"
 carinaReplicaCount: 1
 
 uiUrl: https://cd.tcb1.opsmx.org/
+cacert:
