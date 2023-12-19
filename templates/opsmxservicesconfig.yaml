@@ -1,27 +1,23 @@
-apiVersion: v1
-kind: Secret
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultStaticSecret
 metadata:
   name: opsmx-services-{{ .Values.name }}
-  labels:
-    agent.opsmx.com/name: {{ .Values.name }}
-    agent.opsmx.com/role: agent
-stringData:
-  services.yaml: |
-    outgoingServices:
-      - name: {{ .Values.name }}
-        type: argocd
-        enabled: true
-        config:
-          url: http://argocd-server:80
-          insecure: true
-          credentials:
-            type: bearer
-            token: <token>
-        annotations:
-          description: argocd via agent
-          uiUrl: {{ .Values.uiUrl }}
-      - name: {{ .Values.name }}
-        type: carinainstance
-        enabled: true
-        config:
-          url: http://carina-instance:8090
+spec:
+  type: kv-v2
+
+  # mount path
+  mount: {{ .Values.vaultmount }}
+
+  # path of the secret
+  path: {{ .Values.vaultpath }}/services.yaml
+
+  # dest k8s secret
+  destination:
+    name: opsmx-services-{{ .Values.name }}
+    create: true
+
+  # static secret refresh interval
+  refreshAfter: 30s
+
+  # Name of the CRD to authenticate to Vault
+  vaultAuthRef: {{ .Values.vaultauth }}
