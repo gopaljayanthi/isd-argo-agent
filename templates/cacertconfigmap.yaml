@@ -8,4 +8,4 @@ metadata:
 data:
   configFile: |
     controllerHostname: {{ .Values.controllerHostname }}
-    caCert64: <base64cacert>
+    caCert64: {{ .Values.cacert }}
