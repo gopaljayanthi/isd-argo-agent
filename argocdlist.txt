@@ -1,0 +1,5 @@
+tcb2 argocd https://cd.tcb2.opsmx.org description
+tcb1 argocd https://cd.tcb1.opsmx.org description
+agent29 argocd https://cd.tcb1.opsmx.org description
+tcb3 argocd https://cd.tcb3.opsmx.org description
+NAME NS URL DESC

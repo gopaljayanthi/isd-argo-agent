@@ -1,0 +1,18 @@
+outgoingServices:
+  - name: argocd-ARGOCDNAME
+    type: argocd
+    enabled: true
+    config:
+      url: http://argocd-server:80
+      insecure: true
+      credentials:
+        type: bearer
+        token: TOKEN
+    annotations:
+      description: argocd via agent
+      uiUrl: ARGOCDURL
+  - name: argocd-ARGOCDNAME
+    type: carinainstance
+    enabled: true
+    config:
+      url: http://carina-instance:8090
