@@ -69,7 +69,7 @@ fi
 argocduser=$(vault kv get ...........)
 argocdpassword=$(vault kv get .......)
 
-argocd login $argocdhostingressurl --username=$argocduser --password=$argocdpassword --grpc-web
+argocd login $argocdURL --username=$argocduser --password=$argocdpassword --grpc-web
 argocdtoken=$(argocd account generate-token | base64  -w0)
 
 sed -e "s@ARGOCDNAME@$argocdName@g" -e "s@TOKEN@$argocdtoken@g" -e "s@ARGOCDURL@$argocdURL@g" services.tmpl > services.yaml
