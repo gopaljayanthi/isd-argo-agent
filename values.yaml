@@ -15,3 +15,6 @@ cacert: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZJekNDQXd1Z0F3SUJBZ0lJRjVrL3VF
 vaultauth:
 vaultmount:
 vaultpath:
+
+############### if injector is used instead of operator#############
+vaultinjector: true
