@@ -1,3 +1,4 @@
+{{- if not .Values.vaultinjector }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -59,3 +60,4 @@ spec:
         secret:
           defaultMode: 420
           secretName: opsmx-services-{{ .Values.name }}
+{{- end }}
