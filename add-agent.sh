@@ -12,7 +12,7 @@ export VAULT_MOUNT=''
 export ISDuser=""
 export ISDpassword=""
 #############################################LOOP OVER ARGOCDS ##########################
-rm errorlist.txt 
+rm -rf errorlist.txt 
 while read argo
 do
 #echo working with $argo
@@ -76,7 +76,7 @@ sed -e "s@ARGOCDNAME@$argocdName@g" -e "s@TOKEN@$argocdtoken@g" -e "s@ARGOCDURL@
 export VAULT_PATH=$argocdName
 vault kv put $VAULT_MOUNT/$VAULT_PATH/opsmx-profile cdIntegration="true" sourceName="$argocdName" opsmxIsdUrl="$opsmxIsdUrl" user="admin"
 vault kv put $VAULT_MOUNT/$VAULT_PATH/services.yaml services.yaml=@services.yaml 
-rm services.yaml
+rm -rf services.yaml manifest.yaml output.json
 vault kv put $VAULT_MOUNT/$VAULT_PATH/opsmx-agent-"$argocdName"-auth authtoken=$authtoken
 echo
 echo
