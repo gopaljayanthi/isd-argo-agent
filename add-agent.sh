@@ -83,4 +83,4 @@ echo
 echo
 #break
 done < argocdlist.txt
-echo successfully added secrets to vault check errorlit.txt for any errors.
+echo successfully added secrets to vault check errorlist.txt for any errors.
