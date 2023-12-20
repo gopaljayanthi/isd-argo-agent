@@ -91,13 +91,13 @@ argocduser=$(vault kv get -field username $VAULT_MOUNT/$argocdName/username)
            if [ $? -ne '0' ]; then 
            echo ERROR: could not get argocduser for $argocdName
            echo ERROR: could not get argocduser for $argocdName >> errorlist.txt
-           break
+           continue
           fi 
 argocdpassword=$(vault kv get -field password $VAULT_MOUNT/$argocdName/password)
            if [ $? -ne '0' ]; then 
            echo ERROR: could not get argocdpassword for $argocdName
            echo ERROR: could not get argocdpassword for $argocdName >> errorlist.txt
-           break
+           continue
           fi 
 
 #################################################### get argocd token ##############################
@@ -108,14 +108,14 @@ argocd login $justURL --username=$argocduser --password=$argocdpassword --grpc-w
            echo ERROR: could not login to argocd $argocdURL , check if username and password are correct
            echo >> errorlist.txt
            echo ERROR: could not login to argocd $argocdURL , check if username and password are correct >> errorlist.txt
-          break
+          continue
           fi 
 argocdtoken=$(argocd account generate-token | base64  -w0)
            if [ $? -ne '0' ]; then 
            echo ERROR: could not generate token for $argocdURL , check if apiKey in argocd-cm configmap is enabled for $argocduser
            echo >> errorlist.txt
            echo ERROR: could not generate token for $argocdURL , check if apiKey in argocd-cm configmap is enabled for $argocduser >> errorlist.txt
-          break
+          continue
           fi 
 
 #################################################### create vault secrets ##############################
@@ -130,4 +130,5 @@ echo
 echo
 echo
 done < argocdlist.txt
-echo successfully added secrets to vault check errorlist.txt for any errors.
+if test -f errorlist.txt ; then   echo "Errors exist, check the file errorlist.txt"; exit 1; fi
+echo successfully added secrets to vault.
