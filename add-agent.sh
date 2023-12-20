@@ -122,9 +122,9 @@ argocdtoken=$(argocd account generate-token | base64  -w0)
 sed -e "s@ARGOCDNAME@$argocdName@g" -e "s@TOKEN@$argocdtoken@g" -e "s@ARGOCDURL@$argocdURL@g" services.tmpl > services.yaml
 export VAULT_PATH=$argocdName
 vault kv put $VAULT_MOUNT/$VAULT_PATH/opsmx-profile cdIntegration="true" sourceName="$argocdName" opsmxIsdUrl="$opsmxIsdUrl" user="admin"
-vault kv put $VAULT_MOUNT/$VAULT_PATH/services.yaml services.yaml=@services.yaml 
+vault kv put $VAULT_MOUNT/$VAULT_PATH/services.yaml services=@services.yaml 
 rm -rf services.yaml manifest.yml output.json
-vault kv put $VAULT_MOUNT/$VAULT_PATH/opsmx-agent-"$argocdName"-auth authtoken=$authtoken
+vault kv put $VAULT_MOUNT/$VAULT_PATH/authtoken authtoken=$authtoken
 echo
 echo
 echo
