@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: opsmx-agent-{{ .Values.name }}  
+  name: opsmx-agent-{{ .Values.name }}-with-injector
   labels:
     agent.opsmx.com/name: {{ .Values.name }}
     agent.opsmx.com/role: agent
@@ -10,7 +10,7 @@ spec:
   replicas: 2
   selector:
     matchLabels:
-      app: opsmx-agent-{{ .Values.name }}
+      app: opsmx-agent-{{ .Values.name }}-with-injector
   template:
     metadata:
       annotations:
@@ -19,17 +19,17 @@ spec:
         vault.hashicorp.com/agent-inject-secret-authtoken: {{ .Values.vaultmount }}/data/{{ .Values.vaultpath }}/authtoken
         vault.hashicorp.com/secret-volume-path-authtoken: '/app/secrets'
         vault.hashicorp.com/agent-inject-template-authtoken: |
-            {{- with secret "{{ .Values.vaultmount }}/data/{{ .Values.vaultpath }}/authtoken" -}}
-            {{ .Data.data.authtoken }}
-            {{- end -}}
+            {{ "{{" }}- with secret "{{ .Values.vaultmount }}/data/{{ .Values.vaultpath }}/authtoken" -{{ "}}" }}
+            {{ "{{" }} .Data.data.authtoken {{ "}}" }}
+            {{ "{{" }}- end -{{ "}}" }}
         vault.hashicorp.com/agent-inject-secret-services.yaml: {{ .Values.vaultmount }}/data/argocd-tcb/services.yaml
         vault.hashicorp.com/secret-volume-path-services.yaml: '/app/config'
         vault.hashicorp.com/agent-inject-template-services.yaml: |
-            {{- with secret "{{ .Values.vaultmount }}/data/{{ .Values.vaultpath }}/services.yaml" -}}
-            {{ .Data.data.services }}
-            {{- end -}}
+            {{ "{{" }}- with secret "{{ .Values.vaultmount }}/data/{{ .Values.vaultpath }}/services.yaml" -{{ "}}" }}
+            {{ "{{" }} .Data.data.services {{ "}}" }}
+            {{ "{{" }}- end -{{ "}}" }}
       labels:
-        app: opsmx-agent-{{ .Values.name }}
+        app: opsmx-agent-{{ .Values.name }}-with-injector
         agent.opsmx.com/name: {{ .Values.name }}
         agent.opsmx.com/role: agent
     spec:
