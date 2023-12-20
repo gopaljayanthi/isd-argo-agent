@@ -16,5 +16,6 @@ vaultauth:
 vaultmount:
 vaultpath:
 
-############### if injector is used instead of operator#############
+############### if injector is used instead of operator set these parameters#############
 vaultinjector: true
+vaultrole: argocd-role
