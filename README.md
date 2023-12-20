@@ -10,6 +10,6 @@ add secrets for ISD and agent argocds to vault
 set parameters in add-agent.sh   
 add list of argocds in agentslist.txt 
 # steps
-run add-agent.sh 
+run add-agent.sh   
 set values in values.yaml  
 run helm command  
