@@ -1,0 +1,15 @@
+{{- if not .Values.vaultinjector }}
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: {{ .Values.vaultauth }}
+  namespace: {{ .Values.namespace }}
+spec:
+  method: kubernetes
+  mount: {{ .Values.vaultmount }}
+  kubernetes:
+    role: {{ .Values.vaultrole }}
+    serviceAccount: opsmx-agent-{{ .Values.name }}
+    audiences:
+      - vault
+{{- end }}
