@@ -6,7 +6,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   method: kubernetes
-  mount: {{ .Values.vaultmount }}
+  mount: {{ .Values.vaultauthmount }}
   kubernetes:
     role: {{ .Values.vaultrole }}
     serviceAccount: opsmx-agent-{{ .Values.name }}
