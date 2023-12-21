@@ -14,8 +14,9 @@ cacert: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZJekNDQXd1Z0F3SUJBZ0lJRjVrL3VF
 #######################use these for both vault operator and injector
 vaultmount: somemount
 vaultpath: somepath
+vaultrole: somerole
 #########  use this for vault operator only ################### kubectl -n argocdnamesapce get vaultauth -o name
-vaultauth:
+vaultauth: staticauth
+vaultauthmount: someauthmount
 ############### if injector is used instead of operator set this parameter to true and mention vault role #############
 vaultinjector: false
-vaultrole: 
