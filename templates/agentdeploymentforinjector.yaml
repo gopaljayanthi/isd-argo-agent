@@ -26,7 +26,7 @@ spec:
         vault.hashicorp.com/secret-volume-path-services.yaml: '/app/config'
         vault.hashicorp.com/agent-inject-template-services.yaml: |
             {{ "{{" }}- with secret "{{ .Values.vaultmount }}/data/{{ .Values.vaultpath }}/services.yaml" -{{ "}}" }}
-            {{ "{{" }} .Data.data.services {{ "}}" }}
+            {{ "{{" }} index .Data.data "services.yaml" {{ "}}" }}
             {{ "{{" }}- end -{{ "}}" }}
       labels:
         app: opsmx-agent-{{ .Values.name }}-with-injector
