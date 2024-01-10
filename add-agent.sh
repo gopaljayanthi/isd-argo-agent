@@ -8,8 +8,13 @@ export VAULT_MOUNT=
 export VAULT_PATH_ISD=
 
 ###################################
-export existPath='/gate/platformservice/v7/argo/doesExist?argoName='
-export downloadPath='/gate/oes/argo/agents/'
+#export existPath='/gate/platformservice/v7/argo/doesExist?argoName='
+#export downloadPath='/gate/oes/argo/agents/'
+
+#if using gate url comment two lines above and uncomment two lines below
+
+export existPath='/platformservice/v7/argo/doesExist?argoName='
+export downloadPath='/oes/argo/agents/'
 
 #################################################### vault commands here##############################
 
