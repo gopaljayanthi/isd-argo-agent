@@ -1,21 +1,16 @@
 #!/bin/bash
-##############################################set these parameters####################
+############################################## Set These Parameters ####################
 export opsmxIsdUrl=https://isdargolikha5.devtcb.opsmx.org 
-
 export K8S_NAMESPACE=isdupg
 export K8S_SECRET_NAME=multiargo
 
 ###################################
-#export existPath='/gate/platformservice/v7/argo/doesExist?argoName='
-#export downloadPath='/gate/oes/argo/agents/'
-
-#if using gate url comment two lines above and uncomment two lines below
-
-export existPath='/platformservice/v7/argo/doesExist?argoName='
-export downloadPath='/oes/argo/agents/'
+export existPath='/gate/platformservice/v7/argo/doesExist?argoName='
+export downloadPath='/gate/oes/argo/agents/'
 
 ############################################# Get Kubernetes Secrets ##########################
 # Retrieve the username and password from the Kubernetes secret
+
 export ISDuser=$(kubectl get secret $K8S_SECRET_NAME -n $K8S_NAMESPACE -o jsonpath='{.data.username}' | base64 --decode)
 if [ $? -ne '0' ]; then 
     echo "ERROR: could not get ISDuser"
@@ -28,7 +23,16 @@ if [ $? -ne '0' ]; then
     exit 1
 fi
 
-#############################################LOOP OVER ARGOCDS ##########################
+############################################# Authenticate and Get Session ID ##########################
+#sessionValue=$(curl -v -s -X POST "${opsmxIsdUrl}/gate/login" --data "username=${ISDuser}&password=${ISDpassword}" | grep -Fi "set-cookie" | cut -d'=' -f2 | cut -d';' -f1)
+sessionValue=$(curl -i -X POST "https://isdargolikha5.devtcb.opsmx.org/gate/login" --data "username=$user1&password=Welcome@123" | grep -Fi "set-cookie" | cut -d'=' -f2 | cut -d';' -f1)
+
+if [ -z "$sessionValue" ]; then
+    echo "ERROR: Authentication failed, no session ID received"
+    exit 1
+fi
+echo $sessionValue
+############################################# LOOP OVER ARGOCDS ##########################
 rm -rf errorlist.txt 
 while read argo
 do
@@ -41,17 +45,22 @@ argocdDesc=$(echo $argo | awk '{print $4}')
 echo working with $argocdName in namespace $argocdNS with URL $argocdURL and description $argocdDesc
 echo checking if agent with name $argocdName exists
 
-httpCode=$( curl -vvv -u "$ISDuser":"$ISDpassword" -o output.json -w "%{http_code}" --cookie-jar ./cookie -X GET "$opsmxIsdUrl""$existPath""$argocdName" )
-echo $httpCode is return code of the curl get command
+# Use session ID to check if agent exists
+#httpCode=$(curl -s -o output.json -w "%{http_code}" --header "Cookie: SESSION=${sessionValue}" "${opsmxIsdUrl}${existPath}${argocdName}")
+httpCode=$(curl -s -L -o output.json -w "%{http_code}" --header "Cookie: SESSION=${sessionValue}" "${opsmxIsdUrl}${existPath}${argocdName}") 
+# -L in curl command to redirect automatically
+
+echo $httpCode is the return code of the curl GET command
 if [ $httpCode != "200" ]; then 
     echo "ERROR: could not add agent to ISD for $argocdName"
     echo "ERROR: could not add agent to ISD for $argocdName" >> errorlist.txt 
     cat output.json >> errorlist.txt
     continue
 fi 
-
+cat output.json
 exists=$(cat output.json | jq -r .argoNameExist)
 
+echo $exists
 if [ "$exists" == "true" ]; then 
     echo "$argocdName was already added"
     cat output.json
@@ -62,8 +71,8 @@ else
 
     url="$opsmxIsdUrl""$downloadPath""${argocdName}"/manifest?isExists=true'&namespace='"${argocdNS}"'&description='"$argocdDesc"'&argoCdUrl='"$argocdURL"'&rolloutsEnabled=false&isdUrl='"${opsmxIsdUrl}"
     echo "$url is the url"
-    httpCode=$( curl -s --cookie ./cookie -o manifest.yml -w "%{http_code}" $url )
-    echo "$httpCode is return code of the curl get manifest command"
+    httpCode=$( curl -L -s --header "Cookie: SESSION=${sessionValue}" -o manifest.yml -w "%{http_code}" "$url" )
+    echo "$httpCode is return code of the curl GET manifest command"
     if [ $httpCode != "200" ]; then 
         echo "ERROR could not get manifest for $argocdName"
         echo "ERROR could not get manifest for $argocdName" >> errorlist.txt 
@@ -73,15 +82,16 @@ else
         continue
     fi 
 
-    authtoken=$( cat manifest.yml  | grep authtoken: | awk '{print $2}' | base64 -d )
-    caCert=$( cat manifest.yml  | grep caCert64 | awk '{print $2}' )
+    authtoken=$(grep authtoken: manifest.yml | awk '{print $2}' | base64 -d)
+    caCert=$(grep caCert64 manifest.yml | awk '{print $2}')
     echo "CACert certificate is"
     echo $caCert
     echo
 
 fi 
-#################################################### get argocd creds ##############################
-# Retrieve ArgoCD username and password from Kubernetes secrets
+echo $argocdName
+kubectl get secret $argocdName -n $argocdNS -o jsonpath='{.data.username}' | base64 --decode
+#################################################### Get ArgoCD Creds ##############################
 argocduser=$(kubectl get secret $argocdName -n $argocdNS -o jsonpath='{.data.username}' | base64 --decode)
 if [ $? -ne '0' ]; then 
     echo "ERROR: could not get argocduser for $argocdName"
@@ -95,7 +105,7 @@ if [ $? -ne '0' ]; then
     continue
 fi 
 
-#################################################### get argocd token ##############################
+#################################################### Get ArgoCD Token ##############################
 justURL=$(echo $argocdURL | sed 's@https://@@')
 argocd login $justURL --username=$argocduser --password=$argocdpassword --grpc-web
 if [ $? -ne '0' ]; then 
@@ -112,18 +122,8 @@ if [ $? -ne '0' ]; then
     continue
 fi 
 
-#################################################### create k8s secrets ##############################
-sed -e "s@ARGOCDNAME@$argocdName@g" -e "s@TOKEN@$argocdtoken@g" -e "s@ARGOCDURL@$argocdURL@g" services.tmpl > services.yaml
-
-# Store the secrets in Kubernetes
-kubectl create secret generic $argocdName-secrets -n $argocdNS \
-    --from-literal=cdIntegration="true" \
-    --from-literal=sourceName="$argocdName" \
-    --from-literal=opsmxIsdUrl="$opsmxIsdUrl" \
-    --from-literal=user="admin" \
-    --from-file=services.yaml=services.yaml \
-    --from-literal=authtoken="$authtoken"
-
+#################################################### Create K8s Secrets ##############################
+cat manifest.yml
 rm -rf services.yaml manifest.yml output.json
 echo
 echo

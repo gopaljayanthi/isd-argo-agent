@@ -1,0 +1,2 @@
+
+ERROR: could not login to argocd https://argocd-devtest.devtcb.opsmx.net, check if username and password are correct
